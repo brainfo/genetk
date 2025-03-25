@@ -1,0 +1,2 @@
+ref=/mnt/data/hong/reference/gwas/magma/g1000_eur
+for file in *_p.txt; do basename=${file%_p.txt}; echo $basename; magma --bfile $ref --pval $file use=rsid,p ncol=n --gene-annot "${basename}_loc.txt.genes.annot" --out "$basename"; done
