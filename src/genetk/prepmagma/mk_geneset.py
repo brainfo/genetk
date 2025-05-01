@@ -1,5 +1,5 @@
 ## make geneset gmt file ##
-## input file path /mnt/data/hong/2022/DHJ1_human_obesity_placenta/output/DEGs/summary_Cscore ##
+## input file path ##
 ## input file format with field index and genes ##
 ## output field "geneset" \t "description" \t "genes" ##
 ## geneset is the index column from input, description is the index column value + input file names without suffix .tsv, genes is the genes column, aggregated by the index column, separated by space into one record ##
