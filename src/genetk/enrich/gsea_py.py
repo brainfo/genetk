@@ -2,13 +2,8 @@ import pandas as pd
 import gseapy as gp
 import matplotlib.pyplot as plt
 from collections import defaultdict
-from gseapy import barplot, dotplot
-import os
-import json
-import logging
+from gseapy import barplot
 
-wd = '/mnt/data/hong/2023/DHJ4_human_pcos_placenta/primeseq'
-os.chdir(wd)
 
 gene_sets=['MSigDB_Hallmark_2020','KEGG_2021_Human', 'GO_Biological_Process_2025', 'Reactome_Pathways_2024', 'Jensen_COMPARTMENTS', 'Human_Phenotype_Ontology', 'DGIdb_Drug_Targets_2024']
 ## from the intersect output get the shared across all
