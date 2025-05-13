@@ -80,13 +80,15 @@ def enrich_plots(genelist, name, gene_sets, coding=False, pc_gene_set=None):
             enr_list = enr_list
     if len(enr_list) > 0:
         enr_pd = pd.concat(enr_list, ignore_index=True)
+        ## filter out any rows with a p-value of 1
+        enr_pd = enr_pd[enr_pd['Adjusted P-value'] < 0.05]
         barplot(enr_pd,
               column="Adjusted P-value",
               group='Gene_set',
+              cutoff=0.05,
               size=10,
-              top_term=5,
-              figsize=(1.77,2.23),
-              ofname=f'figures/enrichr/{name}_pcos_specific.pdf',
+              figsize=(1.77,2.23*len(enr_pd.index)/10),
+              ofname=f'figures/enrichr/{name}_pcos.pdf',
               color={'MSigDB_Hallmark_2020':'#4C72B0', 
                      'KEGG_2021_Human': '#DD8452',
                      'GO_Biological_Process_2023': '#55A868'})
@@ -126,7 +128,7 @@ def rnk_gsea(rnk, name, gene_set='KEGG_2021_Human', coding=False, pc_gene_set=No
         print(f"Filtered to {len(rnk)} coding genes")
     
     # Create output directory for this gene set
-    outdir = f'data/enrichr/{gene_set}'
+    outdir = f'data/enrichr/{gene_set}/{name}'
     os.makedirs(outdir, exist_ok=True)
     
     pre_res = gp.prerank(rnk=rnk,
