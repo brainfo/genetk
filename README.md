@@ -6,7 +6,7 @@ A toolkit for genetic analysis.
 
 ```bash
 pip install git+https://github.com/brainfo/plutils.git
-pip install genetk
+pip install git+https://github.com/brainfo/genetk.git ## as main brach is not published. SORRY for this.
 ```
 
 ## Features
