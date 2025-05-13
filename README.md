@@ -24,6 +24,11 @@ pip install git+https://github.com/brainfo/genetk.git
 
 ## Example Usage
 
+### for exploration, given an excel of all DEG results, output GO ORA and GSEA results tables and visualization
+
+see `src/genetk/enrich/go_enrichment.py`
+
+### for customized bar plot given enriched dataframe
 ```python
 import pandas as pd
 import numpy as np
