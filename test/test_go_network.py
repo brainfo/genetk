@@ -13,7 +13,9 @@ def test_go_network():
     
     # Import the GONetwork class
     try:
-        from ..src.genetk.network.go_network import GONetwork
+        # Add src directory to path for imports
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+        from genetk.network.go_network import GONetwork
         print("✓ Successfully imported GONetwork")
     except ImportError as e:
         print(f"✗ Failed to import GONetwork: {e}")
@@ -51,7 +53,7 @@ def test_go_network():
         
         # Test community detection
         print("\nTesting community detection...")
-        communities = edge_filtered_net.community()
+        communities = edge_filtered_net.community(resolution=0.5)
         num_communities = len(set(communities.values()))
         print(f"✓ Found {num_communities} communities")
         

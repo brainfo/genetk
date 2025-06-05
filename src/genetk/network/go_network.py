@@ -123,15 +123,21 @@ class GONetwork:
         
         return new_network
     
-    def community(self, weight='weight'):
-        """Find communities using Louvain algorithm."""
-        lpc = nx.community.louvain_communities(self.G, weight=weight)
+    def community(self, weight='weight', **kwargs):
+        """Find communities using Louvain algorithm.
+        
+        Parameters:
+        weight (str): Edge attribute to use as weight (default: 'weight')
+        **kwargs: Additional parameters for nx.community.louvain_communities
+                 (e.g., resolution, threshold, seed)
+        """
+        lpc = nx.community.louvain_communities(self.G, weight=weight, **kwargs)
         community_index = {n: i for i, com in enumerate(lpc) for n in com}
         return community_index
     
     def bubble(self, name, color=None, community_colored=False, 
                text_annot=False, term_list=None, specify_color=None, 
-               size_attribute='odds_ratio', color_attribute=None):
+               size_attribute='odds_ratio', color_attribute=None, **community_kwargs):
         """
         Create bubble plot visualization of GO network.
         
@@ -144,6 +150,7 @@ class GONetwork:
         specify_color (dict): Dictionary mapping nodes to colors
         size_attribute (str): Node attribute for sizing (default: 'odds_ratio')
         color_attribute (str): Node attribute for coloring (e.g., 'adjusted_p_value')
+        **community_kwargs: Additional parameters for community detection (e.g., resolution)
         """
         pos = nx.spring_layout(self.G, k=0.15, seed=4572321)
         
@@ -156,9 +163,10 @@ class GONetwork:
             except:
                 node_size.append(10)
         
-        # Node colors
+        # Node colors and community mapping
+        community_index = None
         if community_colored:
-            community_index = self.community(weight='weight')
+            community_index = self.community(weight='weight', **community_kwargs)
             community_data = pd.DataFrame.from_dict(community_index, orient='index')
             community_data.to_csv(f'{name}_community.tsv', sep='\t', header=False, index=True)
             node_color = [community_index[n] for n in self.G.nodes()]
@@ -177,19 +185,45 @@ class GONetwork:
         
         # Terms to annotate
         if term_list is None and text_annot:
-            # Use top terms by weighted degree
-            centrality = dict(self.G.degree(weight='weight'))
-            terms_to_annotate = sorted(centrality, key=centrality.get, reverse=True)[:10]
+            if community_colored:
+                # Find one highest centrality term in each community
+                if community_index is None:
+                    community_index = self.community(weight='weight', **community_kwargs)
+                centrality = dict(self.G.degree(weight='weight'))
+                
+                # Group nodes by community
+                communities = defaultdict(list)
+                for node, comm_id in community_index.items():
+                    communities[comm_id].append(node)
+                
+                # Find highest centrality node in each community
+                terms_to_annotate = []
+                for comm_id, nodes in communities.items():
+                    if nodes:
+                        best_node = max(nodes, key=lambda n: centrality.get(n, 0))
+                        terms_to_annotate.append(best_node)
+            else:
+                # Use top terms by weighted degree
+                centrality = dict(self.G.degree(weight='weight'))
+                terms_to_annotate = sorted(centrality, key=centrality.get, reverse=True)[:10]
         else:
             terms_to_annotate = term_list if term_list else []
         
         self.draw_params(pos, node_color, node_size, terms_to_annotate, 
-                        color, name, text_annot, color_attribute, size_attribute)
+                        color, name, text_annot, color_attribute, size_attribute, community_index)
     
     def draw_params(self, pos, node_color, node_size, terms_to_annotate, 
-                   color, name, text_annot, color_attribute=None, size_attribute='odds_ratio'):
+                   color, name, text_annot, color_attribute=None, size_attribute='odds_ratio', community_index=None):
         """Draw network with specified parameters."""
-        fig, ax = plt.subplots(figsize=(20, 15))
+        fig, ax = plt.subplots(figsize=(4, 3))
+        
+        # Calculate edge widths based on weights
+        edge_widths = []
+        for u, v, data in self.G.edges(data=True):
+            weight = data.get('weight', 0)
+            # Scale weights to reasonable width range (0.5 to 5.0)
+            width = 0.5 + (weight * 4.5) if weight > 0 else 0.5
+            edge_widths.append(width)
         
         if color_attribute == 'adjusted_p_value':
             # Use coolwarm colormap for p-values
@@ -201,6 +235,7 @@ class GONetwork:
                 node_color=node_color,
                 node_size=node_size,
                 edge_color="gainsboro",
+                width=edge_widths,
                 alpha=0.8,
                 vmin=min(node_color) if node_color else 0,
                 vmax=max(node_color) if node_color else 1
@@ -210,7 +245,7 @@ class GONetwork:
                                                        vmax=max(node_color) if node_color else 1))
             sm._A = []
             cbar = plt.colorbar(sm, ax=ax)
-            cbar.set_label('-log10(Adjusted P-value)', fontsize=14)
+            cbar.set_label('-log10(Adjusted P-value)', fontsize=6)
         else:
             # Regular drawing
             nx.draw_networkx(
@@ -220,6 +255,7 @@ class GONetwork:
                 node_color=node_color,
                 node_size=node_size,
                 edge_color="gainsboro",
+                width=edge_widths,
                 alpha=0.8
             )
         
@@ -228,11 +264,22 @@ class GONetwork:
             for term in terms_to_annotate:
                 if term in pos:
                     x, y = pos[term]
-                    plt.text(x, y, term, fontsize=8, color=color or 'red', 
+                    # Use community color for text if community_colored is True
+                    if community_index and term in community_index:
+                        # Get the default colormap used by matplotlib
+                        cmap = plt.get_cmap('viridis')
+                        num_communities = max(community_index.values()) + 1
+                        # Normalize the community index to [0, 1] range for colormap
+                        norm_value = community_index[term] / max(1, num_communities - 1)
+                        text_color = cmap(norm_value)
+                    else:
+                        text_color = color or 'red'
+                    
+                    plt.text(x, y, term, fontsize=6, color=text_color, 
                             bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.7))
         
         # Title and legend
-        font = {"color": "k", "fontweight": "bold", "fontsize": 20}
+        font = {"color": "k", "fontweight": "bold", "fontsize": 6}
         ax.set_title(f"GO Network Analysis - {name}", font)
         
         # Legend text
@@ -240,16 +287,16 @@ class GONetwork:
         font["color"] = legend_color
         
         ax.text(
-            0.80,
-            0.10,
-            "edge weight = Jaccard index",
+            1.2,
+            0.06,
+            "edge weightscaled by Jaccard index",
             horizontalalignment="center",
             transform=ax.transAxes,
             fontdict=font,
         )
         ax.text(
-            0.80,
-            0.06,
+            1.2,
+            0.10,
             f"node size = {size_attribute}",
             horizontalalignment="center",
             transform=ax.transAxes,
