@@ -60,8 +60,8 @@ def degree_analysis(G, name):
     fig.tight_layout()
     plt.savefig('figures/{}_degree.pdf'.format(name))
 
-def remove_low_degree(G,dthres):
-    low_degree = [n for n, d in G.degree() if d < dthres]
+def remove_low_degree(G,dthres, weight='combined_score'):
+    low_degree = [n for n, d in G.degree(weight=weight) if d < dthres]
     return G.remove_nodes_from(low_degree)
 
 def betweeness_analysis(G,name):

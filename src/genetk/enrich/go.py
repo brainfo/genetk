@@ -6,13 +6,13 @@ import numpy as np
 import seaborn as sns
 import __future__
 import matplotlib.pyplot as plt
-import plutils as plu
+# import plutils as plu
 
-def plu_savefig(ax, save, plot_size=None, legend_out=True, right_pad_frac=0.3, mplrc=None):
-    plu.reset_mpl_style(mplrc)
-    plu.save_single_ax(ax, save, plot_size=plot_size, legend_out=True, right_pad_frac=0.3)
+# def plu_savefig(ax, save, plot_size=None, legend_out=True, right_pad_frac=0.3, mplrc=None):
+#     plu.reset_mpl_style(mplrc)
+#     plu.save_single_ax(ax, save, plot_size=plot_size, legend_out=True, right_pad_frac=0.3)
 
-def barh(df, term, direction, overlap, save, return_ax=False, mplrc=None, plot_size=(1.7725, 1.6725)):
+def barh(df, term, direction, overlap, save, return_ax=False, mplrc=None, plot_size=(0.443125, 0.418125)):
     if isinstance(df, str):
         df = pd.read_csv(df,sep='\t',decimal='.')
     else:
@@ -48,5 +48,5 @@ def barh(df, term, direction, overlap, save, return_ax=False, mplrc=None, plot_s
     ax.figure.colorbar(sm, cax=sub_ax)
     if return_ax:
         return ax
-    if save:
-        plu_savefig(ax, save, plot_size=plot_size, legend_out=True, right_pad_frac=0.3, mplrc=mplrc)
+    # if save:
+    #     plu_savefig(ax, save, plot_size=plot_size, legend_out=True, right_pad_frac=0.3, mplrc=mplrc)

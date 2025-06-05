@@ -2,7 +2,7 @@ import pandas as pd
 import gseapy as gp
 from gseapy import barplot
 import os
-import plutils as plu
+# import plutils as plu
 import warnings
 
 def gene_info(x):
@@ -32,7 +32,7 @@ def load_gencode_annotation(gtf_file):
     print("First 5 protein coding genes:", list(pc_gene_set)[:5])
     return gencode_genes, pc_gene_set
 
-def enrich_plots(genelist, name, gene_sets, coding=False, pc_gene_set=None):
+def enrich_plots(genelist, name, gene_sets=['MSigDB_Hallmark_2020', 'KEGG_2021_Human', 'GO_Biological_Process_2023'], coding=False, pc_gene_set=None):
     """
     Perform enrichment analysis and create plots.
     
@@ -64,7 +64,8 @@ def enrich_plots(genelist, name, gene_sets, coding=False, pc_gene_set=None):
             return
         name = f"{name}_coding"
         print(f"Filtered to {len(genelist)} coding genes")
-    
+
+    os.makedirs(f'data/enrichr/{name}', exist_ok=True)
     enr_list = []
     for gene_st in gene_sets:
         try:
@@ -72,7 +73,7 @@ def enrich_plots(genelist, name, gene_sets, coding=False, pc_gene_set=None):
             enr = gp.enrichr(gene_list=genelist,
                  gene_sets=gene_st,
                  organism='human',
-                 outdir='data/enrichr',
+                 outdir=f'data/enrichr/{name}',
                 )
             enr_list.append(enr.results)
             print(f"enrichment success for {gene_st}")
@@ -88,11 +89,11 @@ def enrich_plots(genelist, name, gene_sets, coding=False, pc_gene_set=None):
               cutoff=0.05,
               size=10,
               figsize=(1.77,2.23*len(enr_pd.index)/10),
-              ofname=f'figures/enrichr/{name}_pcos.pdf',
+              ofname=f'figures/enrichr/{name}.pdf',
               color={'MSigDB_Hallmark_2020':'#4C72B0', 
                      'KEGG_2021_Human': '#DD8452',
                      'GO_Biological_Process_2023': '#55A868'})
-        enr_pd.to_csv(f'data/enrichr/{name}.tsv', sep='\t')
+        enr_pd.to_csv(f'data/enrichr/{name}/{name}.tsv', sep='\t')
 
 def rnk_gsea(rnk, name, gene_set='KEGG_2021_Human', coding=False, pc_gene_set=None):
     """
@@ -251,5 +252,5 @@ if __name__ == "__main__":
     excel_file = "data/degs/data/pcos_sex.xlsx"
     gtf_file = '/mnt/run/jh/reference/Homo_sapiens/NCBI/GRCh38/Annotation/Genes.gencode/genes.gtf'
     
-    plu.reset_mpl_style(rcfile="/mnt/run/jh/reference/general.mplstyle")
+    # plu.reset_mpl_style(rcfile="/mnt/run/jh/reference/general.mplstyle")
     process_excel_sheets(excel_file, gtf_file=gtf_file)
