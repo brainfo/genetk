@@ -43,9 +43,12 @@ class GONetwork:
         # Add nodes with attributes
         for idx, row in self.data.iterrows():
             term = row['Term']
+            # Calculate N_overlap from the overlap ratio
+            n_overlap = int(row['Overlap'].split('/')[0])
             G.add_node(term,
                       gene_set=row['Gene_set'],
                       overlap=row['Overlap'],
+                      n_overlap=n_overlap,
                       p_value=row['P-value'],
                       adjusted_p_value=row['Adjusted P-value'],
                       odds_ratio=row['Odds Ratio'],
@@ -137,7 +140,7 @@ class GONetwork:
     
     def bubble(self, name, color=None, community_colored=False, 
                text_annot=False, term_list=None, specify_color=None, 
-               size_attribute='odds_ratio', color_attribute=None, **community_kwargs):
+               size_attribute='odds_ratio', color_attribute=None, top_by='centrality', **community_kwargs):
         """
         Create bubble plot visualization of GO network.
         
@@ -148,20 +151,32 @@ class GONetwork:
         text_annot (bool): Show text annotations
         term_list (list): List of terms to annotate
         specify_color (dict): Dictionary mapping nodes to colors
-        size_attribute (str): Node attribute for sizing (default: 'odds_ratio')
+        size_attribute (str): Node attribute for sizing ('centrality', 'n_overlap', 'odds_ratio', 'adjusted_p_value', default: 'odds_ratio')
         color_attribute (str): Node attribute for coloring (e.g., 'adjusted_p_value')
+        top_by (str): Attribute to rank terms for annotation ('centrality', 'n_overlap', 'odds_ratio', default: 'centrality')
         **community_kwargs: Additional parameters for community detection (e.g., resolution)
         """
         pos = nx.spring_layout(self.G, k=0.15, seed=4572321)
         
         # Node sizes based on specified attribute
         node_size = []
-        for node in self.G.nodes():
-            try:
-                size_val = self.G.nodes[node][size_attribute]
-                node_size.append(size_val * 10)
-            except:
-                node_size.append(10)
+        if size_attribute == 'centrality':
+            centrality = dict(self.G.degree(weight='weight'))
+            for node in self.G.nodes():
+                size_val = centrality.get(node, 0)
+                node_size.append(size_val * 10 + 10)  # Add base size
+        else:
+            for node in self.G.nodes():
+                try:
+                    if size_attribute == 'adjusted_p_value':
+                        # Use -log10 for p-values (smaller p-value = larger size)
+                        size_val = -np.log10(self.G.nodes[node][size_attribute])
+                        node_size.append(size_val * 10 + 10)
+                    else:
+                        size_val = self.G.nodes[node][size_attribute]
+                        node_size.append(size_val * 10 + 10)
+                except:
+                    node_size.append(10)
         
         # Node colors and community mapping
         community_index = None
@@ -186,26 +201,47 @@ class GONetwork:
         # Terms to annotate
         if term_list is None and text_annot:
             if community_colored:
-                # Find one highest centrality term in each community
+                # Find one highest ranking term in each community based on top_by
                 if community_index is None:
                     community_index = self.community(weight='weight', **community_kwargs)
-                centrality = dict(self.G.degree(weight='weight'))
+                
+                # Get ranking attribute values
+                if top_by == 'centrality':
+                    ranking_values = dict(self.G.degree(weight='weight'))
+                elif top_by == 'adjusted_p_value':
+                    # For p-values, use -log10 (smaller p-value = higher rank)
+                    ranking_values = {node: -np.log10(self.G.nodes[node]['adjusted_p_value']) 
+                                    for node in self.G.nodes()}
+                else:
+                    # For n_overlap, odds_ratio, etc.
+                    ranking_values = {node: self.G.nodes[node][top_by] 
+                                    for node in self.G.nodes()}
                 
                 # Group nodes by community
                 communities = defaultdict(list)
                 for node, comm_id in community_index.items():
                     communities[comm_id].append(node)
                 
-                # Find highest centrality node in each community
+                # Find highest ranking node in each community
                 terms_to_annotate = []
                 for comm_id, nodes in communities.items():
                     if nodes:
-                        best_node = max(nodes, key=lambda n: centrality.get(n, 0))
+                        best_node = max(nodes, key=lambda n: ranking_values.get(n, 0))
                         terms_to_annotate.append(best_node)
             else:
-                # Use top terms by weighted degree
-                centrality = dict(self.G.degree(weight='weight'))
-                terms_to_annotate = sorted(centrality, key=centrality.get, reverse=True)[:10]
+                # Use top terms by specified attribute
+                if top_by == 'centrality':
+                    ranking_values = dict(self.G.degree(weight='weight'))
+                elif top_by == 'adjusted_p_value':
+                    # For p-values, use -log10 (smaller p-value = higher rank)
+                    ranking_values = {node: -np.log10(self.G.nodes[node]['adjusted_p_value']) 
+                                    for node in self.G.nodes()}
+                else:
+                    # For n_overlap, odds_ratio, etc.
+                    ranking_values = {node: self.G.nodes[node][top_by] 
+                                    for node in self.G.nodes()}
+                
+                terms_to_annotate = sorted(ranking_values, key=ranking_values.get, reverse=True)[:10]
         else:
             terms_to_annotate = term_list if term_list else []
         
