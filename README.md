@@ -38,7 +38,7 @@ import numpy as np
 test_file = "test/GO_Biological_Process_2023.human.enrichr.reports.txt" 
 ```
 
-### for customized bar plot given enriched dataframe
+### for bar plot given enriched dataframe
 
 ```python
 df = pd.read_csv(test_file, sep='\t')
@@ -46,8 +46,8 @@ genetk.enrich.go.barh(df, 'GO', 'down', 'exact', save = 'test.pdf', return_ax=Fa
 ```
 
 
-### for term network analysis
-
+### for network analysis (Term-level) given enriched dataframe
+ 
 ```python
 from genetk.network.go_network import GONetwork
 go_net = GONetwork(test_file)
