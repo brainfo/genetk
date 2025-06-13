@@ -59,16 +59,36 @@ def test_go_network():
         
         # Create figures directory if it doesn't exist
         os.makedirs('figures', exist_ok=True)
-        
-        # Test visualization with community coloring
+
+        # Test visualization with community coloring, default annotate by centrality
         print("\nTesting visualization with community coloring...")
         edge_filtered_net.bubble(
-            name='test_community',
+            name='test_community_default_centrality',
             community_colored=True,
             text_annot=True
         )
         print("✓ Community-colored visualization created")
         
+        # Test visualization with community coloring, top_by n_overlap
+        print("\nTesting visualization with community coloring, top_by n_overlap...")
+        edge_filtered_net.bubble(
+            name='test_community_n_overlap',
+            community_colored=True,
+            text_annot=True,
+            top_by = 'n_overlap'
+        )
+        print("✓ Community-colored visualization created")
+
+                # Test visualization with community coloring top by odds ratio
+        print("\nTesting visualization with community coloring, top_by odds_ratio...")
+        edge_filtered_net.bubble(
+            name='test_community_odds_ratiop',
+            community_colored=True,
+            text_annot=True,
+            top_by = 'odds_ratio'
+        )
+        print("✓ Community-colored visualization created")
+
         # Test visualization with p-value coloring
         print("\nTesting visualization with p-value coloring...")
         edge_filtered_net.bubble(

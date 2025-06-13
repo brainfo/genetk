@@ -5,7 +5,6 @@ A toolkit for genetic analysis.
 ## Installation
 
 ```bash
-pip install git+https://github.com/brainfo/plutils.git
 pip install git+https://github.com/brainfo/genetk.git
 ```
 
@@ -25,9 +24,11 @@ pip install git+https://github.com/brainfo/genetk.git
 
 ## Example Usage
 
-### for exploration
+### for enrichment given DEGs
 
-given an excel of all DEG results, output **all** GO ORA and GSEA results tables and visualize **all** significant terms
+given an excel of all DEG results with sheetnames, output **all** GO ORA and GSEA results tables and visualize **all** significant terms.
+
+default using databases 'MSigDB_Hallmark_2020', 'KEGG_2021_Human', and 'GO_Biological_Process_2023'
 
 see `src/genetk/enrich/go_enrichment.py`
 

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
@@ -140,7 +138,8 @@ class GONetwork:
     
     def bubble(self, name, color=None, community_colored=False, 
                text_annot=False, term_list=None, specify_color=None, 
-               size_attribute='odds_ratio', color_attribute=None, top_by='centrality', **community_kwargs):
+               size_attribute='odds_ratio', color_attribute=None, top_by='centrality', 
+               vmin=None, vmax=None, **community_kwargs):
         """
         Create bubble plot visualization of GO network.
         
@@ -154,6 +153,8 @@ class GONetwork:
         size_attribute (str): Node attribute for sizing ('centrality', 'n_overlap', 'odds_ratio', 'adjusted_p_value', default: 'odds_ratio')
         color_attribute (str): Node attribute for coloring (e.g., 'adjusted_p_value')
         top_by (str): Attribute to rank terms for annotation ('centrality', 'n_overlap', 'odds_ratio', default: 'centrality')
+        vmin (float): Minimum value for color scale (only used with color_attribute='adjusted_p_value')
+        vmax (float): Maximum value for color scale (only used with color_attribute='adjusted_p_value')
         **community_kwargs: Additional parameters for community detection (e.g., resolution)
         """
         pos = nx.spring_layout(self.G, k=0.15, seed=4572321)
@@ -246,10 +247,10 @@ class GONetwork:
             terms_to_annotate = term_list if term_list else []
         
         self.draw_params(pos, node_color, node_size, terms_to_annotate, 
-                        color, name, text_annot, color_attribute, size_attribute, community_index)
+                        color, name, text_annot, color_attribute, size_attribute, community_index, vmin, vmax)
     
     def draw_params(self, pos, node_color, node_size, terms_to_annotate, 
-                   color, name, text_annot, color_attribute=None, size_attribute='odds_ratio', community_index=None):
+                   color, name, text_annot, color_attribute=None, size_attribute='odds_ratio', community_index=None, vmin=None, vmax=None):
         """Draw network with specified parameters."""
         fig, ax = plt.subplots(figsize=(4, 3))
         
@@ -263,6 +264,10 @@ class GONetwork:
         
         if color_attribute == 'adjusted_p_value':
             # Use coolwarm colormap for p-values
+            # Set vmin/vmax for color scale
+            color_vmin = vmin if vmin is not None else (min(node_color) if node_color else 0)
+            color_vmax = vmax if vmax is not None else (max(node_color) if node_color else 1)
+            
             nx.draw_networkx(
                 self.G,
                 pos=pos,
@@ -273,14 +278,14 @@ class GONetwork:
                 edge_color="gainsboro",
                 width=edge_widths,
                 alpha=0.8,
-                vmin=min(node_color) if node_color else 0,
-                vmax=max(node_color) if node_color else 1
+                vmin=color_vmin,
+                vmax=color_vmax
             )
             sm = plt.cm.ScalarMappable(cmap=plt.get_cmap('coolwarm'), 
-                                     norm=plt.Normalize(vmin=min(node_color) if node_color else 0, 
-                                                       vmax=max(node_color) if node_color else 1))
+                                     norm=plt.Normalize(vmin=color_vmin, vmax=color_vmax))
             sm._A = []
-            cbar = plt.colorbar(sm, ax=ax)
+            # Position colorbar outside the plot box
+            cbar = plt.colorbar(sm, ax=ax, shrink=0.8, pad=0.1)
             cbar.set_label('-log10(Adjusted P-value)', fontsize=6)
         else:
             # Regular drawing
@@ -318,7 +323,7 @@ class GONetwork:
         font = {"color": "k", "fontweight": "bold", "fontsize": 6}
         ax.set_title(f"GO Network Analysis - {name}", font)
         
-        # Legend text
+        # Legend text - keep inside the plot area
         legend_color = color or "r"
         font["color"] = legend_color
         
@@ -340,7 +345,12 @@ class GONetwork:
         )
         
         ax.margins(0.1, 0.05)
-        fig.tight_layout()
         plt.axis("off")
+        
+        # Adjust layout to accommodate legend outside plot area
+        plt.subplots_adjust(right=0.85)
+        
+        # Save both PDF and PNG formats
         plt.savefig(f'figures/{name}_go_network.pdf', dpi=300, bbox_inches='tight')
+        plt.savefig(f'figures/{name}_go_network.png', dpi=300, bbox_inches='tight')
         plt.show()

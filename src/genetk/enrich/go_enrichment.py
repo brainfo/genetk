@@ -1,8 +1,15 @@
+"""
+This script performs enrichment analysis and GSEA on differential expression data.
+
+Especially for explorations, to save out and plot all significant terms.
+Usage:
+    python go_enrichment.py
+
+"""
 import pandas as pd
 import gseapy as gp
 from gseapy import barplot
 import os
-# import plutils as plu
 import warnings
 
 def gene_info(x):
@@ -64,8 +71,7 @@ def enrich_plots(genelist, name, gene_sets=['MSigDB_Hallmark_2020', 'KEGG_2021_H
             return
         name = f"{name}_coding"
         print(f"Filtered to {len(genelist)} coding genes")
-
-    os.makedirs(f'data/enrichr/{name}', exist_ok=True)
+    
     enr_list = []
     for gene_st in gene_sets:
         try:
@@ -73,7 +79,7 @@ def enrich_plots(genelist, name, gene_sets=['MSigDB_Hallmark_2020', 'KEGG_2021_H
             enr = gp.enrichr(gene_list=genelist,
                  gene_sets=gene_st,
                  organism='human',
-                 outdir=f'data/enrichr/{name}',
+                 outdir=f'data/enrichr/pcos/{name}',
                 )
             enr_list.append(enr.results)
             print(f"enrichment success for {gene_st}")
@@ -89,11 +95,11 @@ def enrich_plots(genelist, name, gene_sets=['MSigDB_Hallmark_2020', 'KEGG_2021_H
               cutoff=0.05,
               size=10,
               figsize=(1.77,2.23*len(enr_pd.index)/10),
-              ofname=f'figures/enrichr/{name}.pdf',
+              ofname=f'figures/enrichr/{name}_pcos.pdf',
               color={'MSigDB_Hallmark_2020':'#4C72B0', 
                      'KEGG_2021_Human': '#DD8452',
                      'GO_Biological_Process_2023': '#55A868'})
-        enr_pd.to_csv(f'data/enrichr/{name}/{name}.tsv', sep='\t')
+        enr_pd.to_csv(f'data/enrichr/{name}.tsv', sep='\t')
 
 def rnk_gsea(rnk, name, gene_set='KEGG_2021_Human', coding=False, pc_gene_set=None):
     """
@@ -129,7 +135,7 @@ def rnk_gsea(rnk, name, gene_set='KEGG_2021_Human', coding=False, pc_gene_set=No
         print(f"Filtered to {len(rnk)} coding genes")
     
     # Create output directory for this gene set
-    outdir = f'data/enrichr/{gene_set}/{name}'
+    outdir = f'data/enrichr/pcos/{gene_set}/{name}'
     os.makedirs(outdir, exist_ok=True)
     
     pre_res = gp.prerank(rnk=rnk,
@@ -141,12 +147,12 @@ def rnk_gsea(rnk, name, gene_set='KEGG_2021_Human', coding=False, pc_gene_set=No
                      outdir=outdir,
                      seed=404,
                      verbose=True)
-    
-    terms = pre_res.res2d.Term
-    pre_res.plot(terms=terms[1:7],
+
+    terms = pre_res.res2d[pre_res.res2d['FDR q-val'] < 0.05].Term
+    pre_res.plot(terms=terms,
                    show_ranking=True,
                    figsize=(1.77,2.23),
-                   ofname=f'figures/enrichr/{gene_set}/{name}_pcos_specific_gsea.pdf')
+                   ofname=f'figures/enrichr/{gene_set}/{name}_pcos_gsea.pdf')
 
 def create_gene_lists(data):
     """
@@ -174,7 +180,7 @@ def create_gene_lists(data):
     
     return up_genes, down_genes
 
-def process_excel_sheets(excel_file, gtf_file=None, gene_sets=None, coding=True):
+def process_excel_sheets(excel_file, gtf_file=None, gene_sets=['MSigDB_Hallmark_2020', 'KEGG_2021_Human', 'GO_Biological_Process_2023'], coding=True):
     """
     Process each sheet in the Excel file and run enrichment analysis.
     
@@ -184,8 +190,6 @@ def process_excel_sheets(excel_file, gtf_file=None, gene_sets=None, coding=True)
         gene_sets (list): List of gene sets to use for analysis
         coding (bool): Whether to filter for protein-coding genes
     """
-    if gene_sets is None:
-        gene_sets = ['MSigDB_Hallmark_2020', 'KEGG_2021_Human', 'GO_Biological_Process_2023']
     
     # Create output directories
     os.makedirs('data/enrichr', exist_ok=True)
@@ -245,12 +249,7 @@ def process_excel_sheets(excel_file, gtf_file=None, gene_sets=None, coding=True)
             )
 
 if __name__ == "__main__":
-    wd = '/mnt/run/jh/projects/pcos_sc'
-    os.chdir(wd)
-    
-    # Example usage
-    excel_file = "data/degs/data/pcos_sex.xlsx"
-    gtf_file = '/mnt/run/jh/reference/Homo_sapiens/NCBI/GRCh38/Annotation/Genes.gencode/genes.gtf'
-    
-    # plu.reset_mpl_style(rcfile="/mnt/run/jh/reference/general.mplstyle")
+    excel_file = "test/test.xlsx"
+    gtf_file = 'test/genes.gtf'
+
     process_excel_sheets(excel_file, gtf_file=gtf_file)
