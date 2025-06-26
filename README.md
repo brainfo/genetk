@@ -24,7 +24,7 @@ pip install git+https://github.com/brainfo/genetk.git
 
 ## Example Usage
 
-### for enrichment given DEGs
+1. for enrichment analysis given DEGs
 
 given an excel of all DEG results with sheetnames, output **all** GO ORA and GSEA results tables and visualize **all** significant terms.
 
@@ -32,41 +32,45 @@ default using databases 'MSigDB_Hallmark_2020', 'KEGG_2021_Human', and 'GO_Biolo
 
 see `src/genetk/enrich/go_enrichment.py`
 
-```python
-import pandas as pd
-import numpy as np
+Output:
+  - ORA enrichment tables and one barplot for all enriched terms from given databases
+  - GSEA enrichment tables from each database, GSEA plots with each significant term, one GSEA plot with all significant terms
 
-test_file = "test/GO_Biological_Process_2023.human.enrichr.reports.txt" 
-```
+2. Barplot of enriched terms (likely from 1. or any other dataframe)
+   
+  ```python
+  import pandas as pd
+  import numpy as np
 
-### for bar plot given enriched dataframe
+  test_file = "test/GO_Biological_Process_2023.human.enrichr.reports.txt" 
+  ```
 
-```python
-df = pd.read_csv(test_file, sep='\t')
-genetk.enrich.go.barh(df, 'GO', 'down', 'exact', save = 'test.pdf', return_ax=False)
-```
+  ```python
+  df = pd.read_csv(test_file, sep='\t')
+  genetk.enrich.go.barh(df, 'GO', 'down', 'exact', save = 'test.pdf', return_ax=False)
+  ```
 
 
-### for network analysis (Term-level) given enriched dataframe
+3. network analysis (Term-level) of enriched terms
  
-```python
-from genetk.network.go_network import GONetwork
-go_net = GONetwork(test_file)
+  ```python
+  from genetk.network.go_network import GONetwork
+  go_net = GONetwork(test_file)
 
-filtered_net = go_net.filter_nodes_by_attribute('odds_ratio')
-edge_filtered_net = filtered_net.filter_edges_by_weight()
+  filtered_net = go_net.filter_nodes_by_attribute('odds_ratio')
+  edge_filtered_net = filtered_net.filter_edges_by_weight()
 
-communities = edge_filtered_net.community(resolution=0.5)
-num_communities = len(set(communities.values()))
+  communities = edge_filtered_net.community(resolution=0.5)
+  num_communities = len(set(communities.values()))
 
-os.makedirs('figures', exist_ok=True)
+  os.makedirs('figures', exist_ok=True)
 
-edge_filtered_net.bubble(
-name='test_community',
-community_colored=True,
-text_annot=True
-)
+  edge_filtered_net.bubble(
+  name='test_community',
+  community_colored=True,
+  text_annot=True
+  )
 
-## output figure test/figures/test_community_go_network.pdf
-```
+  ## output figure test/figures/test_community_go_network.pdf
+  ```
 
