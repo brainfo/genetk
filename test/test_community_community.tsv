@@ -1,72 +1,72 @@
+Positive Regulation Of Receptor Signaling Pathway Via STAT (GO:1904894)	0
+Peptidyl-Tyrosine Phosphorylation (GO:0018108)	0
+Cellular Response To Growth Hormone Stimulus (GO:0071378)	0
+Insulin-Like Growth Factor Receptor Signaling Pathway (GO:0048009)	0
+Organic Cyclic Compound Biosynthetic Process (GO:1901362)	0
 Regulation Of ERBB Signaling Pathway (GO:1901184)	0
-MAPK Cascade (GO:0000165)	0
-Contact Inhibition (GO:0060242)	0
-Dephosphorylation (GO:0016311)	0
-Protein Dephosphorylation (GO:0006470)	0
-Regulation Of Protein Transport (GO:0051223)	0
-Actin Cytoskeleton Reorganization (GO:0031532)	0
-Negative Regulation Of Receptor-Mediated Endocytosis (GO:0048261)	0
-Regulation Of JUN Kinase Activity (GO:0043506)	0
-Golgi To Plasma Membrane Transport (GO:0006893)	0
-Positive Regulation Of JUN Kinase Activity (GO:0043507)	0
-Platelet-Derived Growth Factor Receptor Signaling Pathway (GO:0048008)	0
-Golgi Organization (GO:0007030)	0
-Regulation Of Neuron Projection Arborization (GO:0150011)	0
-Regulation Of Cell Adhesion (GO:0030155)	0
-Positive Regulation Of Telomerase Activity (GO:0051973)	0
-Regulation Of Intracellular Protein Transport (GO:0033157)	0
-Heparan Sulfate Proteoglycan Biosynthetic Process (GO:0015012)	1
-Protein N-linked Glycosylation (GO:0006487)	1
-Protein N-linked Glycosylation Via Asparagine (GO:0018279)	1
-Nucleotide-Sugar Metabolic Process (GO:0009225)	1
-Proteoglycan Biosynthetic Process (GO:0030166)	1
-Energy Reserve Metabolic Process (GO:0006112)	1
-Glycosaminoglycan Biosynthetic Process (GO:0006024)	1
-Sulfur Compound Biosynthetic Process (GO:0044272)	1
-Carbohydrate Biosynthetic Process (GO:0016051)	1
-Peptidyl-Serine Phosphorylation (GO:0018105)	2
-Positive Regulation Of Receptor Signaling Pathway Via STAT (GO:1904894)	2
-Organic Cyclic Compound Biosynthetic Process (GO:1901362)	2
-Peptidyl-Tyrosine Phosphorylation (GO:0018108)	2
-Receptor Signaling Pathway Via STAT (GO:0097696)	2
-Positive Regulation Of Receptor Signaling Pathway Via JAK-STAT (GO:0046427)	2
-Positive Regulation Of Neuron Migration (GO:2001224)	2
-Cytoskeleton Organization (GO:0007010)	2
-Regulation Of Developmental Growth (GO:0048638)	2
-Cellular Response To Interleukin-6 (GO:0071354)	2
-Cellular Response To Growth Hormone Stimulus (GO:0071378)	2
-Receptor Signaling Pathway Via JAK-STAT (GO:0007259)	2
-Regulation Of Protein Localization To Nucleus (GO:1900180)	2
-Growth Hormone Receptor Signaling Pathway (GO:0060396)	2
-Insulin-Like Growth Factor Receptor Signaling Pathway (GO:0048009)	2
-Insulin Receptor Signaling Pathway (GO:0008286)	2
-Regulation Of Dendrite Morphogenesis (GO:0048814)	3
-Negative Regulation Of Ion Transmembrane Transporter Activity (GO:0032413)	3
-Positive Regulation Of Cytoskeleton Organization (GO:0051495)	3
-Regulation Of Epithelial Cell Migration (GO:0010632)	3
-Regulation Of Dendrite Development (GO:0050773)	3
-Negative Regulation Of Sodium Ion Transmembrane Transport (GO:1902306)	3
-Regulation Of Anatomical Structure Morphogenesis (GO:0022603)	3
-Positive Regulation Of Protein Localization To Cell Periphery (GO:1904377)	3
-Aggrephagy (GO:0035973)	3
-Negative Regulation Of Sodium Ion Transmembrane Transporter Activity (GO:2000650)	3
-Regulation Of Sodium Ion Transmembrane Transporter Activity (GO:2000649)	3
-Focal Adhesion Assembly (GO:0048041)	4
-Regulation Of Axonogenesis (GO:0050770)	4
-Positive Regulation Of GTPase Activity (GO:0043547)	4
-Regulation Of G1/S Transition Of Mitotic Cell Cycle (GO:2000045)	4
-Negative Regulation Of Dendritic Spine Development (GO:0061000)	4
-Modulation Of Chemical Synaptic Transmission (GO:0050804)	4
-Cell-Substrate Junction Assembly (GO:0007044)	4
-Regulation Of Small GTPase Mediated Signal Transduction (GO:0051056)	4
-Regulation Of Focal Adhesion Assembly (GO:0051893)	4
-Regulation Of Wound Healing, Spreading Of Epidermal Cells (GO:1903689)	4
-Regulation Of Cell Junction Assembly (GO:1901888)	4
-Regulation Of Intracellular Signal Transduction (GO:1902531)	4
-Protein Localization To Cell Junction (GO:1902414)	4
-Positive Regulation Of Hydrolase Activity (GO:0051345)	4
-Dendrite Morphogenesis (GO:0048813)	4
-Activation Of GTPase Activity (GO:0090630)	4
-Adherens Junction Maintenance (GO:0034334)	4
-Vesicle Transport Along Actin Filament (GO:0030050)	5
-Actin Filament-Based Transport (GO:0099515)	5
+Receptor Signaling Pathway Via STAT (GO:0097696)	0
+Positive Regulation Of Receptor Signaling Pathway Via JAK-STAT (GO:0046427)	0
+Regulation Of Developmental Growth (GO:0048638)	0
+Cellular Response To Interleukin-6 (GO:0071354)	0
+Insulin Receptor Signaling Pathway (GO:0008286)	0
+Growth Hormone Receptor Signaling Pathway (GO:0060396)	0
+Receptor Signaling Pathway Via JAK-STAT (GO:0007259)	0
+Negative Regulation Of Receptor-Mediated Endocytosis (GO:0048261)	1
+Golgi To Plasma Membrane Transport (GO:0006893)	1
+Regulation Of JUN Kinase Activity (GO:0043506)	1
+MAPK Cascade (GO:0000165)	1
+Cytoskeleton Organization (GO:0007010)	1
+Regulation Of Protein Transport (GO:0051223)	1
+Platelet-Derived Growth Factor Receptor Signaling Pathway (GO:0048008)	1
+Contact Inhibition (GO:0060242)	1
+Dephosphorylation (GO:0016311)	1
+Regulation Of Intracellular Protein Transport (GO:0033157)	1
+Peptidyl-Serine Phosphorylation (GO:0018105)	1
+Positive Regulation Of JUN Kinase Activity (GO:0043507)	1
+Positive Regulation Of Telomerase Activity (GO:0051973)	1
+Golgi Organization (GO:0007030)	1
+Actin Cytoskeleton Reorganization (GO:0031532)	1
+Regulation Of Neuron Projection Arborization (GO:0150011)	1
+Protein Dephosphorylation (GO:0006470)	1
+Regulation Of Cell Adhesion (GO:0030155)	1
+Aggrephagy (GO:0035973)	2
+Negative Regulation Of Ion Transmembrane Transporter Activity (GO:0032413)	2
+Regulation Of Anatomical Structure Morphogenesis (GO:0022603)	2
+Regulation Of Dendrite Morphogenesis (GO:0048814)	2
+Positive Regulation Of Cytoskeleton Organization (GO:0051495)	2
+Positive Regulation Of Protein Localization To Cell Periphery (GO:1904377)	2
+Regulation Of Sodium Ion Transmembrane Transporter Activity (GO:2000649)	2
+Regulation Of Dendrite Development (GO:0050773)	2
+Regulation Of Epithelial Cell Migration (GO:0010632)	2
+Negative Regulation Of Sodium Ion Transmembrane Transporter Activity (GO:2000650)	2
+Negative Regulation Of Sodium Ion Transmembrane Transport (GO:1902306)	2
+Actin Filament-Based Transport (GO:0099515)	3
+Vesicle Transport Along Actin Filament (GO:0030050)	3
+Energy Reserve Metabolic Process (GO:0006112)	4
+Protein N-linked Glycosylation Via Asparagine (GO:0018279)	4
+Heparan Sulfate Proteoglycan Biosynthetic Process (GO:0015012)	4
+Proteoglycan Biosynthetic Process (GO:0030166)	4
+Nucleotide-Sugar Metabolic Process (GO:0009225)	4
+Sulfur Compound Biosynthetic Process (GO:0044272)	4
+Glycosaminoglycan Biosynthetic Process (GO:0006024)	4
+Carbohydrate Biosynthetic Process (GO:0016051)	4
+Protein N-linked Glycosylation (GO:0006487)	4
+Focal Adhesion Assembly (GO:0048041)	5
+Regulation Of Small GTPase Mediated Signal Transduction (GO:0051056)	5
+Regulation Of Protein Localization To Nucleus (GO:1900180)	5
+Regulation Of Axonogenesis (GO:0050770)	5
+Negative Regulation Of Dendritic Spine Development (GO:0061000)	5
+Dendrite Morphogenesis (GO:0048813)	5
+Regulation Of Cell Junction Assembly (GO:1901888)	5
+Positive Regulation Of Neuron Migration (GO:2001224)	5
+Protein Localization To Cell Junction (GO:1902414)	5
+Regulation Of G1/S Transition Of Mitotic Cell Cycle (GO:2000045)	5
+Adherens Junction Maintenance (GO:0034334)	5
+Regulation Of Intracellular Signal Transduction (GO:1902531)	5
+Regulation Of Wound Healing, Spreading Of Epidermal Cells (GO:1903689)	5
+Positive Regulation Of GTPase Activity (GO:0043547)	5
+Positive Regulation Of Hydrolase Activity (GO:0051345)	5
+Cell-Substrate Junction Assembly (GO:0007044)	5
+Modulation Of Chemical Synaptic Transmission (GO:0050804)	5
+Activation Of GTPase Activity (GO:0090630)	5
+Regulation Of Focal Adhesion Assembly (GO:0051893)	5
