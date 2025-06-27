@@ -2,8 +2,6 @@
 This script performs enrichment analysis and GSEA on differential expression data.
 
 Especially for explorations, to save out and plot all significant terms.
-Usage:
-    python go_enrichment.py
 
 """
 import pandas as pd
@@ -79,7 +77,7 @@ def enrich_plots(genelist, name, gene_sets=['MSigDB_Hallmark_2020', 'KEGG_2021_H
             enr = gp.enrichr(gene_list=genelist,
                  gene_sets=gene_st,
                  organism='human',
-                 outdir=f'data/enrichr/pcos/{name}',
+                 outdir=f'data/enrichr/{name}',
                 )
             enr_list.append(enr.results)
             print(f"enrichment success for {gene_st}")
@@ -95,7 +93,7 @@ def enrich_plots(genelist, name, gene_sets=['MSigDB_Hallmark_2020', 'KEGG_2021_H
               cutoff=0.05,
               size=10,
               figsize=(1.77,2.23*len(enr_pd.index)/10),
-              ofname=f'figures/enrichr/{name}_pcos.pdf',
+              ofname=f'figures/enrichr/{name}_.pdf',
               color={'MSigDB_Hallmark_2020':'#4C72B0', 
                      'KEGG_2021_Human': '#DD8452',
                      'GO_Biological_Process_2023': '#55A868'})
@@ -135,7 +133,7 @@ def rnk_gsea(rnk, name, gene_set='KEGG_2021_Human', coding=False, pc_gene_set=No
         print(f"Filtered to {len(rnk)} coding genes")
     
     # Create output directory for this gene set
-    outdir = f'data/enrichr/pcos/{gene_set}/{name}'
+    outdir = f'data/enrichr/{gene_set}/{name}'
     os.makedirs(outdir, exist_ok=True)
     
     pre_res = gp.prerank(rnk=rnk,
@@ -152,7 +150,7 @@ def rnk_gsea(rnk, name, gene_set='KEGG_2021_Human', coding=False, pc_gene_set=No
     pre_res.plot(terms=terms,
                    show_ranking=True,
                    figsize=(1.77,2.23),
-                   ofname=f'figures/enrichr/{gene_set}/{name}_pcos_gsea.pdf')
+                   ofname=f'figures/enrichr/{gene_set}/{name}__gsea.pdf')
 
 def create_gene_lists(data):
     """
@@ -166,14 +164,14 @@ def create_gene_lists(data):
     """
     # Upregulated genes
     up_genes = data[
-        (data['avg_log2FC'] > 0.25) & 
+        (data['avg_log2FC'] > 1) & 
         (data['p_val_adj'] < 0.05) & 
         (abs(data['pct.1'] - data['pct.2']) > 0.1)
     ].index.tolist()
     
     # Downregulated genes
     down_genes = data[
-        (data['avg_log2FC'] < -0.25) & 
+        (data['avg_log2FC'] < 1) & 
         (data['p_val_adj'] < 0.05) & 
         (abs(data['pct.1'] - data['pct.2']) > 0.1)
     ].index.tolist()

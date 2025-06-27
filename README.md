@@ -5,7 +5,7 @@ A toolkit for genetic analysis.
 ## Installation
 
 ```bash
-pip install git+https://github.com/brainfo/genetk.git
+uv pip install git+https://github.com/brainfo/genetk.git
 ```
 
 ## Features
@@ -39,41 +39,41 @@ pip install git+https://github.com/brainfo/genetk.git
       - ORA enrichment tables and one barplot for all enriched terms from given databases
       - GSEA enrichment tables from each database, GSEA plots with each significant term, one GSEA plot with all significant terms
 
-4. Barplot of enriched terms (likely from 1. or any other dataframe)
-   
-  ```python
-  import pandas as pd
-  import numpy as np
+2. Barplot of enriched terms (likely from 1. or any other dataframe)
 
-  test_file = "test/GO_Biological_Process_2023.human.enrichr.reports.txt" 
-  ```
+   ```python
+   import pandas as pd
+   import numpy as np
 
-  ```python
-  df = pd.read_csv(test_file, sep='\t')
-  genetk.enrich.go.barh(df, 'GO', 'down', 'exact', save = 'test.pdf', return_ax=False)
-  ```
+   test_file = "test/GO_Biological_Process_2023.human.enrichr.reports.txt" 
+   ```
+
+   ```python
+   df = pd.read_csv(test_file, sep='\t')
+   genetk.enrich.go.barh(df, 'GO', 'down', 'exact', save = 'test.pdf', return_ax=False)
+   ```
 
 
 3. network analysis (Term-level) of enriched terms
- 
-  ```python
-  from genetk.network.go_network import GONetwork
-  go_net = GONetwork(test_file)
 
-  filtered_net = go_net.filter_nodes_by_attribute('odds_ratio')
-  edge_filtered_net = filtered_net.filter_edges_by_weight()
+   ```python
+   from genetk.network.go_network import GONetwork
+   go_net = GONetwork(test_file)
 
-  communities = edge_filtered_net.community(resolution=0.5)
-  num_communities = len(set(communities.values()))
+   filtered_net = go_net.filter_nodes_by_attribute('odds_ratio')
+   edge_filtered_net = filtered_net.filter_edges_by_weight()
 
-  os.makedirs('figures', exist_ok=True)
+   communities = edge_filtered_net.community(resolution=0.5)
+   num_communities = len(set(communities.values()))
 
-  edge_filtered_net.bubble(
-  name='test_community',
-  community_colored=True,
-  text_annot=True
-  )
+   os.makedirs('figures', exist_ok=True)
 
-  ## output figure test/figures/test_community_go_network.pdf
-  ```
+   edge_filtered_net.bubble(
+   name='test_community',
+   community_colored=True,
+   text_annot=True
+   )
+
+   ## output figure test/figures/test_community_go_network.pdf
+   ```
 
