@@ -26,17 +26,20 @@ pip install git+https://github.com/brainfo/genetk.git
 
 1. for enrichment analysis given DEGs
 
-  Input: an excel of all DEG results with sheetnames, output **all** GO ORA and GSEA results tables and visualize **all** significant terms.
+   Input: an excel of all DEG results with sheetnames, output **all** GO ORA and GSEA results tables and visualize **all** significant terms.
 
-  default using databases 'MSigDB_Hallmark_2020', 'KEGG_2021_Human', and 'GO_Biological_Process_2023'
+   default using databases 'MSigDB_Hallmark_2020', 'KEGG_2021_Human', and 'GO_Biological_Process_2023'
+   
+   ```python
+   from genetk.enrich.go_enrichment import process_excel_sheets
+   process_excel_sheets("test/test.xlsx", gtf_file="test/genes.gtf")
+   ```
 
-  see `src/genetk/enrich/go_enrichment.py`
+    Output:
+      - ORA enrichment tables and one barplot for all enriched terms from given databases
+      - GSEA enrichment tables from each database, GSEA plots with each significant term, one GSEA plot with all significant terms
 
-  Output:
-    - ORA enrichment tables and one barplot for all enriched terms from given databases
-    - GSEA enrichment tables from each database, GSEA plots with each significant term, one GSEA plot with all significant terms
-
-2. Barplot of enriched terms (likely from 1. or any other dataframe)
+4. Barplot of enriched terms (likely from 1. or any other dataframe)
    
   ```python
   import pandas as pd
