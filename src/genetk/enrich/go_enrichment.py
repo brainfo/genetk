@@ -171,7 +171,7 @@ def create_gene_lists(data):
     
     # Downregulated genes
     down_genes = data[
-        (data['avg_log2FC'] < 1) & 
+        (data['avg_log2FC'] < (-1)) & 
         (data['p_val_adj'] < 0.05) & 
         (abs(data['pct.1'] - data['pct.2']) > 0.1)
     ].index.tolist()
