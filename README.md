@@ -1,4 +1,4 @@
-//# Genetk
+# Genetk
 
 A toolkit for genetic analysis.
 
