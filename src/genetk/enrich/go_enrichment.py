@@ -87,17 +87,18 @@ def enrich_plots(genelist, name, gene_sets=['MSigDB_Hallmark_2020', 'KEGG_2021_H
         enr_pd = pd.concat(enr_list, ignore_index=True)
         ## filter out any rows with a p-value of 1
         enr_pd = enr_pd[enr_pd['Adjusted P-value'] < 0.05]
-        barplot(enr_pd,
+        enr_pd.to_csv(f'data/enrichr/{name}.tsv', sep='\t')
+        top_enr_pd = enr_pd.head(15)
+        barplot(top_enr_pd,
               column="Adjusted P-value",
               group='Gene_set',
               cutoff=0.05,
               size=10,
-              figsize=(1.77,2.23*len(enr_pd.index)/10),
+              figsize=(1.77,2.23*len(enr_pd.index)/20),
               ofname=f'figures/enrichr/{name}_.pdf',
               color={'MSigDB_Hallmark_2020':'#4C72B0', 
                      'KEGG_2021_Human': '#DD8452',
                      'GO_Biological_Process_2023': '#55A868'})
-        enr_pd.to_csv(f'data/enrichr/{name}.tsv', sep='\t')
 
 def rnk_gsea(rnk, name, gene_set='KEGG_2021_Human', coding=False, pc_gene_set=None):
     """
