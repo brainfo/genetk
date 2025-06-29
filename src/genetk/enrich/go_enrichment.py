@@ -94,7 +94,7 @@ def enrich_plots(genelist, name, gene_sets=['MSigDB_Hallmark_2020', 'KEGG_2021_H
               group='Gene_set',
               cutoff=0.05,
               size=10,
-              figsize=(1.77,2.23*len(enr_pd.index)/20),
+              figsize=(1.77,2.23*len(top_enr_pd.index)/20),
               ofname=f'figures/enrichr/{name}_.pdf',
               color={'MSigDB_Hallmark_2020':'#4C72B0', 
                      'KEGG_2021_Human': '#DD8452',
