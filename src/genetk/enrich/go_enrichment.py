@@ -4,11 +4,14 @@ This script performs enrichment analysis and GSEA on differential expression dat
 Especially for explorations, to save out and plot all significant terms.
 
 """
-import pandas as pd
-import gseapy as gp
-from gseapy import barplot
+import argparse
 import os
 import warnings
+from datetime import datetime
+
+import gseapy as gp
+import pandas as pd
+from gseapy import barplot
 
 def gene_info(x):
     """Extract gene name and type from gtf attribute string"""
@@ -37,7 +40,15 @@ def load_gencode_annotation(gtf_file):
     print("First 5 protein coding genes:", list(pc_gene_set)[:5])
     return gencode_genes, pc_gene_set
 
-def enrich_plots(genelist, name, gene_sets=['MSigDB_Hallmark_2020', 'KEGG_2021_Human', 'GO_Biological_Process_2023'], coding=False, pc_gene_set=None):
+def enrich_plots(
+    genelist,
+    name,
+    gene_sets=['MSigDB_Hallmark_2020', 'KEGG_2021_Human', 'GO_Biological_Process_2023'],
+    coding=False,
+    pc_gene_set=None,
+    output_dir='data/enrichr',
+    figure_dir='figures/enrichr',
+):
     """
     Perform enrichment analysis and create plots.
     
@@ -47,7 +58,14 @@ def enrich_plots(genelist, name, gene_sets=['MSigDB_Hallmark_2020', 'KEGG_2021_H
         gene_sets (list): List of gene sets to use for enrichment
         coding (bool): If True, filter for protein-coding genes only
         pc_gene_set (set): Set of protein-coding genes if coding=True
+        output_dir (str): Base directory where Enrichr outputs are written
+        figure_dir (str): Base directory where plots are saved
     """
+    os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(figure_dir, exist_ok=True)
+    analysis_outdir = os.path.join(output_dir, name)
+    os.makedirs(analysis_outdir, exist_ok=True)
+
     # Filter for coding genes if requested
     if coding and pc_gene_set is not None:
         original_len = len(genelist)
@@ -77,7 +95,7 @@ def enrich_plots(genelist, name, gene_sets=['MSigDB_Hallmark_2020', 'KEGG_2021_H
             enr = gp.enrichr(gene_list=genelist,
                  gene_sets=gene_st,
                  organism='human',
-                 outdir=f'data/enrichr/{name}',
+                 outdir=analysis_outdir,
                 )
             enr_list.append(enr.results)
             print(f"enrichment success for {gene_st}")
@@ -87,7 +105,7 @@ def enrich_plots(genelist, name, gene_sets=['MSigDB_Hallmark_2020', 'KEGG_2021_H
         enr_pd = pd.concat(enr_list, ignore_index=True)
         ## filter out any rows with a p-value of 1
         enr_pd = enr_pd[enr_pd['Adjusted P-value'] < 0.05]
-        enr_pd.to_csv(f'data/enrichr/{name}.tsv', sep='\t')
+        enr_pd.to_csv(os.path.join(output_dir, f'{name}.tsv'), sep='\t')
         top_enr_pd = enr_pd.head(15)
         barplot(top_enr_pd,
               column="Adjusted P-value",
@@ -95,12 +113,20 @@ def enrich_plots(genelist, name, gene_sets=['MSigDB_Hallmark_2020', 'KEGG_2021_H
               cutoff=0.05,
               size=10,
               figsize=(1.77,2.23*len(top_enr_pd.index)/10),
-              ofname=f'figures/enrichr/{name}_.pdf',
+              ofname=os.path.join(figure_dir, f'{name}_.pdf'),
               color={'MSigDB_Hallmark_2020':'#4C72B0', 
                      'KEGG_2021_Human': '#DD8452',
                      'GO_Biological_Process_2023': '#55A868'})
 
-def rnk_gsea(rnk, name, gene_set='KEGG_2021_Human', coding=False, pc_gene_set=None):
+def rnk_gsea(
+    rnk,
+    name,
+    gene_set='KEGG_2021_Human',
+    coding=False,
+    pc_gene_set=None,
+    output_dir='data/enrichr',
+    figure_dir='figures/enrichr',
+):
     """
     Perform GSEA analysis and create plots.
     
@@ -110,7 +136,19 @@ def rnk_gsea(rnk, name, gene_set='KEGG_2021_Human', coding=False, pc_gene_set=No
         gene_set (str): Gene set to use for GSEA analysis
         coding (bool): If True, filter for protein-coding genes only
         pc_gene_set (set): Set of protein-coding genes if coding=True
+        output_dir (str): Base directory where GSEA outputs are written
+        figure_dir (str): Base directory where GSEA plots are saved
     """
+    os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(figure_dir, exist_ok=True)
+    gene_set_outdir = os.path.join(output_dir, gene_set)
+    os.makedirs(gene_set_outdir, exist_ok=True)
+    gsea_outdir = os.path.join(gene_set_outdir, name)
+    os.makedirs(gsea_outdir, exist_ok=True)
+    gene_set_fig_dir = os.path.join(figure_dir, gene_set)
+    os.makedirs(gene_set_fig_dir, exist_ok=True)
+    gsea_fig_path = os.path.join(gene_set_fig_dir, f'{name}__gsea.pdf')
+
     # Filter for coding genes if requested
     if coding and pc_gene_set is not None:
         original_len = len(rnk)
@@ -133,17 +171,13 @@ def rnk_gsea(rnk, name, gene_set='KEGG_2021_Human', coding=False, pc_gene_set=No
         name = f"{name}_coding"
         print(f"Filtered to {len(rnk)} coding genes")
     
-    # Create output directory for this gene set
-    outdir = f'data/enrichr/{gene_set}/{name}'
-    os.makedirs(outdir, exist_ok=True)
-    
     pre_res = gp.prerank(rnk=rnk,
                      gene_sets=gene_set,
                      threads=16,
                      min_size=5,
                      max_size=1000,
                      permutation_num=1000,
-                     outdir=outdir,
+                     outdir=gsea_outdir,
                      seed=404,
                      verbose=True)
 
@@ -151,7 +185,7 @@ def rnk_gsea(rnk, name, gene_set='KEGG_2021_Human', coding=False, pc_gene_set=No
     pre_res.plot(terms=terms,
                    show_ranking=True,
                    figsize=(1.77,2.23),
-                   ofname=f'figures/enrichr/{gene_set}/{name}__gsea.pdf')
+                   ofname=gsea_fig_path)
 
 def create_gene_lists(data):
     """
@@ -179,7 +213,13 @@ def create_gene_lists(data):
     
     return up_genes, down_genes
 
-def process_excel_sheets(excel_file, gtf_file=None, gene_sets=['MSigDB_Hallmark_2020', 'KEGG_2021_Human', 'GO_Biological_Process_2023'], coding=True):
+def process_excel_sheets(
+    excel_file,
+    gtf_file=None,
+    gene_sets=['MSigDB_Hallmark_2020', 'KEGG_2021_Human', 'GO_Biological_Process_2023'],
+    coding=True,
+    run_id=None,
+):
     """
     Process each sheet in the Excel file and run enrichment analysis.
     
@@ -188,11 +228,22 @@ def process_excel_sheets(excel_file, gtf_file=None, gene_sets=['MSigDB_Hallmark_
         gtf_file (str): Path to the GTF file for gene annotation
         gene_sets (list): List of gene sets to use for analysis
         coding (bool): Whether to filter for protein-coding genes
+        run_id (str): Unique identifier to segregate outputs per run. If None,
+            defaults to a timestamp.
     """
-    
-    # Create output directories
-    os.makedirs('data/enrichr', exist_ok=True)
-    os.makedirs('figures/enrichr', exist_ok=True)
+    if run_id is None:
+        run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+    safe_run_id = str(run_id)
+    for sep in (os.sep, os.path.altsep):
+        if sep:
+            safe_run_id = safe_run_id.replace(sep, "_")
+
+    run_output_dir = os.path.join('data', 'enrichr', safe_run_id)
+    run_figure_dir = os.path.join('figures', 'enrichr', safe_run_id)
+    os.makedirs(run_output_dir, exist_ok=True)
+    os.makedirs(run_figure_dir, exist_ok=True)
+    print(f"Run outputs will be stored under: {run_output_dir}")
+    print(f"Run figures will be stored under: {run_figure_dir}")
     
     # Load gene annotation if provided
     _, pc_gene_set = load_gencode_annotation(gtf_file)
@@ -217,7 +268,9 @@ def process_excel_sheets(excel_file, gtf_file=None, gene_sets=['MSigDB_Hallmark_
                 f"{sheet_name}_upregulated",
                 gene_sets=gene_sets,
                 coding=coding,
-                pc_gene_set=pc_gene_set
+                pc_gene_set=pc_gene_set,
+                output_dir=run_output_dir,
+                figure_dir=run_figure_dir,
             )
         
         # Run enrichment analysis for downregulated genes
@@ -228,7 +281,9 @@ def process_excel_sheets(excel_file, gtf_file=None, gene_sets=['MSigDB_Hallmark_
                 f"{sheet_name}_downregulated",
                 gene_sets=gene_sets,
                 coding=coding,
-                pc_gene_set=pc_gene_set
+                pc_gene_set=pc_gene_set,
+                output_dir=run_output_dir,
+                figure_dir=run_figure_dir,
             )
         
         # Run GSEA analysis
@@ -244,11 +299,40 @@ def process_excel_sheets(excel_file, gtf_file=None, gene_sets=['MSigDB_Hallmark_
                 sheet_name,
                 gene_set=gene_set,
                 coding=coding,
-                pc_gene_set=pc_gene_set
+                pc_gene_set=pc_gene_set,
+                output_dir=run_output_dir,
+                figure_dir=run_figure_dir,
             )
 
 if __name__ == "__main__":
-    excel_file = "test/test.xlsx"
-    gtf_file = 'test/genes.gtf'
+    parser = argparse.ArgumentParser(
+        description="Run GO/KEGG enrichment and GSEA across Excel sheets."
+    )
+    parser.add_argument(
+        "--excel-file",
+        default="test/test.xlsx",
+        help="Path to the Excel file containing differential expression results.",
+    )
+    parser.add_argument(
+        "--gtf-file",
+        default='test/genes.gtf',
+        help="Optional path to a GTF file for retrieving protein-coding annotations.",
+    )
+    parser.add_argument(
+        "--run-id",
+        default=None,
+        help="Unique identifier appended to output folders. Defaults to a timestamp.",
+    )
+    parser.add_argument(
+        "--no-coding",
+        action="store_true",
+        help="Set to disable filtering for protein-coding genes.",
+    )
+    args = parser.parse_args()
 
-    process_excel_sheets(excel_file, gtf_file=gtf_file)
+    process_excel_sheets(
+        args.excel_file,
+        gtf_file=args.gtf_file,
+        coding=not args.no_coding,
+        run_id=args.run_id,
+    )

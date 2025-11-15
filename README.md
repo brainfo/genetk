@@ -32,12 +32,13 @@ uv pip install git+https://github.com/brainfo/genetk.git
    
    ```python
    from genetk.enrich.go_enrichment import process_excel_sheets
-   process_excel_sheets("test/test.xlsx", gtf_file="test/genes.gtf")
+process_excel_sheets("test/test.xlsx", gtf_file="test/genes.gtf", run_id="trial_001")
    ```
 
     Output:
       - ORA enrichment tables and one barplot for all enriched terms from given databases
-      - GSEA enrichment tables from each database, GSEA plots with each significant term, one GSEA plot with all significant terms
+     - GSEA enrichment tables from each database, GSEA plots with each significant term, one GSEA plot with all significant terms
+     - All outputs are stored under `data/enrichr/<run_id>` and `figures/enrichr/<run_id>` so consecutive runs never clobber each other
 
 2. Barplot of enriched terms (likely from 1. or any other dataframe)
 
