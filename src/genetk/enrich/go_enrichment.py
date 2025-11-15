@@ -6,12 +6,29 @@ Especially for explorations, to save out and plot all significant terms.
 """
 import argparse
 import os
+import re
 import warnings
 from datetime import datetime
 
 import gseapy as gp
 import pandas as pd
 from gseapy import barplot
+
+
+def sanitize_label(label):
+    """
+    Make a string filesystem-friendly by keeping alphanumerics, underscores,
+    dashes, and dots, and collapsing everything else to single underscores.
+    """
+    if label is None:
+        label = ""
+    label = str(label).strip()
+    if not label:
+        label = "unnamed"
+    label = re.sub(r"[^\w\-.]+", "_", label)
+    label = re.sub(r"_+", "_", label)
+    label = label.strip("._")
+    return label or "unnamed"
 
 def gene_info(x):
     """Extract gene name and type from gtf attribute string"""
@@ -61,11 +78,7 @@ def enrich_plots(
         output_dir (str): Base directory where Enrichr outputs are written
         figure_dir (str): Base directory where plots are saved
     """
-    os.makedirs(output_dir, exist_ok=True)
-    os.makedirs(figure_dir, exist_ok=True)
-    analysis_outdir = os.path.join(output_dir, name)
-    os.makedirs(analysis_outdir, exist_ok=True)
-
+    safe_name = sanitize_label(name)
     # Filter for coding genes if requested
     if coding and pc_gene_set is not None:
         original_len = len(genelist)
@@ -86,16 +99,25 @@ def enrich_plots(
             warnings.warn(f"No coding genes found after filtering for {name}. Original list had {original_len} genes.")
             return
         name = f"{name}_coding"
+        safe_name = sanitize_label(name)
         print(f"Filtered to {len(genelist)} coding genes")
-    
+
+    os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(figure_dir, exist_ok=True)
+    analysis_outdir = os.path.join(output_dir, safe_name)
+    os.makedirs(analysis_outdir, exist_ok=True)
+
     enr_list = []
     for gene_st in gene_sets:
         try:
             print(f"enrichment start, genes in {gene_st}")
+            safe_gene_set = sanitize_label(gene_st)
+            gene_set_outdir = os.path.join(analysis_outdir, safe_gene_set)
+            os.makedirs(gene_set_outdir, exist_ok=True)
             enr = gp.enrichr(gene_list=genelist,
                  gene_sets=gene_st,
                  organism='human',
-                 outdir=analysis_outdir,
+                 outdir=gene_set_outdir,
                 )
             enr_list.append(enr.results)
             print(f"enrichment success for {gene_st}")
@@ -105,7 +127,7 @@ def enrich_plots(
         enr_pd = pd.concat(enr_list, ignore_index=True)
         ## filter out any rows with a p-value of 1
         enr_pd = enr_pd[enr_pd['Adjusted P-value'] < 0.05]
-        enr_pd.to_csv(os.path.join(output_dir, f'{name}.tsv'), sep='\t')
+        enr_pd.to_csv(os.path.join(output_dir, f'{safe_name}.tsv'), sep='\t')
         top_enr_pd = enr_pd.head(15)
         barplot(top_enr_pd,
               column="Adjusted P-value",
@@ -113,7 +135,7 @@ def enrich_plots(
               cutoff=0.05,
               size=10,
               figsize=(1.77,2.23*len(top_enr_pd.index)/10),
-              ofname=os.path.join(figure_dir, f'{name}_.pdf'),
+              ofname=os.path.join(figure_dir, f'{safe_name}.pdf'),
               color={'MSigDB_Hallmark_2020':'#4C72B0', 
                      'KEGG_2021_Human': '#DD8452',
                      'GO_Biological_Process_2023': '#55A868'})
@@ -139,15 +161,8 @@ def rnk_gsea(
         output_dir (str): Base directory where GSEA outputs are written
         figure_dir (str): Base directory where GSEA plots are saved
     """
-    os.makedirs(output_dir, exist_ok=True)
-    os.makedirs(figure_dir, exist_ok=True)
-    gene_set_outdir = os.path.join(output_dir, gene_set)
-    os.makedirs(gene_set_outdir, exist_ok=True)
-    gsea_outdir = os.path.join(gene_set_outdir, name)
-    os.makedirs(gsea_outdir, exist_ok=True)
-    gene_set_fig_dir = os.path.join(figure_dir, gene_set)
-    os.makedirs(gene_set_fig_dir, exist_ok=True)
-    gsea_fig_path = os.path.join(gene_set_fig_dir, f'{name}__gsea.pdf')
+    safe_name = sanitize_label(name)
+    safe_gene_set = sanitize_label(gene_set)
 
     # Filter for coding genes if requested
     if coding and pc_gene_set is not None:
@@ -169,8 +184,19 @@ def rnk_gsea(
             warnings.warn(f"No coding genes found after filtering for {name} GSEA. Original list had {original_len} genes.")
             return
         name = f"{name}_coding"
+        safe_name = sanitize_label(name)
         print(f"Filtered to {len(rnk)} coding genes")
-    
+
+    os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(figure_dir, exist_ok=True)
+    gene_set_outdir = os.path.join(output_dir, safe_gene_set)
+    os.makedirs(gene_set_outdir, exist_ok=True)
+    gsea_outdir = os.path.join(gene_set_outdir, safe_name)
+    os.makedirs(gsea_outdir, exist_ok=True)
+    gene_set_fig_dir = os.path.join(figure_dir, safe_gene_set)
+    os.makedirs(gene_set_fig_dir, exist_ok=True)
+    gsea_fig_path = os.path.join(gene_set_fig_dir, f'{safe_name}_gsea.pdf')
+
     pre_res = gp.prerank(rnk=rnk,
                      gene_sets=gene_set,
                      threads=16,
@@ -233,10 +259,7 @@ def process_excel_sheets(
     """
     if run_id is None:
         run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
-    safe_run_id = str(run_id)
-    for sep in (os.sep, os.path.altsep):
-        if sep:
-            safe_run_id = safe_run_id.replace(sep, "_")
+    safe_run_id = sanitize_label(run_id)
 
     run_output_dir = os.path.join('data', 'enrichr', safe_run_id)
     run_figure_dir = os.path.join('figures', 'enrichr', safe_run_id)
@@ -251,8 +274,9 @@ def process_excel_sheets(
     # Read all sheets from Excel file
     excel_data = pd.read_excel(excel_file, sheet_name=None, index_col=0)
     
-    for sheet_name, data in excel_data.items():
-        print(f"\nProcessing sheet: {sheet_name}")
+    for sheet_idx, (sheet_name, data) in enumerate(excel_data.items()):
+        sheet_slug = sanitize_label(f"{sheet_idx+1:02d}_{sheet_name}")
+        print(f"\nProcessing sheet: {sheet_name} (slug: {sheet_slug})")
         print("First few rows of data:")
         print(data.head())
         print("\nColumn names:", data.columns.tolist())
@@ -265,7 +289,7 @@ def process_excel_sheets(
             print(f"Running enrichment for {len(up_genes)} upregulated genes")
             enrich_plots(
                 up_genes, 
-                f"{sheet_name}_upregulated",
+                f"{sheet_slug}_upregulated",
                 gene_sets=gene_sets,
                 coding=coding,
                 pc_gene_set=pc_gene_set,
@@ -278,7 +302,7 @@ def process_excel_sheets(
             print(f"Running enrichment for {len(down_genes)} downregulated genes")
             enrich_plots(
                 down_genes,
-                f"{sheet_name}_downregulated",
+                f"{sheet_slug}_downregulated",
                 gene_sets=gene_sets,
                 coding=coding,
                 pc_gene_set=pc_gene_set,
@@ -296,7 +320,7 @@ def process_excel_sheets(
             print(f"Running GSEA for {gene_set}")
             rnk_gsea(
                 rnk,
-                sheet_name,
+                sheet_slug,
                 gene_set=gene_set,
                 coding=coding,
                 pc_gene_set=pc_gene_set,
