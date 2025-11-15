@@ -8,20 +8,6 @@ A toolkit for genetic analysis.
 uv pip install git+https://github.com/brainfo/genetk.git
 ```
 
-## Features
-
-- Use gseapy for gene set enrichment analysis
-  - given gtf file, annotate and select only protein-coding genes for enrichment
-  - The gseapy plotting utils support mapping q values to colors for dot plots but not barplots. They have barplots with fixed float (p or q values) as one axis, and at most color by database groups.
-    - thus, here's a simple barplot function for flexibly choosing field as axis and mapping colors
-  - Support both explorary saving out all sig terms directly from fresh analysis, or pre-saved tables
-    - for pre-saved tables, the plot saving is boosted with plutils package
-  - from the output gsea enriched table, use networkx for network analysis for the Terms. the edge is weighted by the Jaccard index of the Genes between Terms.
-- Use magma to enrich for GWAS hits
-- Use networkx for Network analysis given any edge list, e.g. from PPI analysis
-  - In-degree, Out-degree, and Betweenness centrality
-  - Find communities
-
 ## Example Usage
 
 1. for enrichment analysis given DEGs
@@ -29,7 +15,7 @@ uv pip install git+https://github.com/brainfo/genetk.git
    Input: an excel of all DEG results with sheetnames, output **all** GO ORA and GSEA results tables and visualize **all** significant terms.
 
    default using databases 'MSigDB_Hallmark_2020', 'KEGG_2021_Human', and 'GO_Biological_Process_2023'
-   
+
    ```python
    from genetk.enrich.go_enrichment import process_excel_sheets
 process_excel_sheets("test/test.xlsx", gtf_file="test/genes.gtf", run_id="trial_001")
@@ -39,8 +25,7 @@ process_excel_sheets("test/test.xlsx", gtf_file="test/genes.gtf", run_id="trial_
       - ORA enrichment tables and one barplot for all enriched terms from given databases
      - GSEA enrichment tables from each database, GSEA plots with each significant term, one GSEA plot with all significant terms
      - All outputs are stored under `data/enrichr/<run_id>` and `figures/enrichr/<run_id>` so consecutive runs never clobber each other
-
-2. Barplot of enriched terms (likely from 1. or any other dataframe)
+3. Barplot of enriched terms (likely from 1. or any other dataframe)
 
    ```python
    import pandas as pd
@@ -55,7 +40,7 @@ process_excel_sheets("test/test.xlsx", gtf_file="test/genes.gtf", run_id="trial_
    ```
 
 
-3. network analysis (Term-level) of enriched terms
+4. network analysis (Term-level) of enriched terms
 
    ```python
    from genetk.network.go_network import GONetwork
@@ -78,3 +63,17 @@ process_excel_sheets("test/test.xlsx", gtf_file="test/genes.gtf", run_id="trial_
    ## output figure test/figures/test_community_go_network.pdf
    ```
 
+   
+## Features
+
+- Use gseapy for gene set enrichment analysis
+  - given gtf file, annotate and select only protein-coding genes for enrichment
+  - The gseapy plotting utils support mapping q values to colors for dot plots but not barplots. They have barplots with fixed float (p or q values) as one axis, and at most color by database groups.
+    - thus, here's a simple barplot function for flexibly choosing field as axis and mapping colors
+  - Support both explorary saving out all sig terms directly from fresh analysis, or pre-saved tables
+    - for pre-saved tables, the plot saving is boosted with plutils package
+  - from the output gsea enriched table, use networkx for network analysis for the Terms. the edge is weighted by the Jaccard index of the Genes between Terms.
+- Use magma to enrich for GWAS hits
+- Use networkx for Network analysis given any edge list, e.g. from PPI analysis
+  - In-degree, Out-degree, and Betweenness centrality
+  - Find communities
