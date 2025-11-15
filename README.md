@@ -22,9 +22,11 @@ uv pip install git+https://github.com/brainfo/genetk.git
    ```
 
     Output:
+
        - ORA enrichment tables and one barplot for all enriched terms from given databases
        - GSEA enrichment tables from each database, GSEA plots with each significant term, one GSEA plot with all significant terms
        - All outputs are stored under `data/enrichr/<run_id>` and `figures/enrichr/<run_id>` so consecutive runs never clobber each other
+        - Every sheet's outputs include a `<sheetIndex>_<sheetName>` prefix in the filename to stay unique when processing multi-sheet workbooks
   
 2. Barplot of enriched terms (likely from 1. or any other dataframe)
 
